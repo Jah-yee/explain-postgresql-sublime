@@ -6,6 +6,7 @@ import http
 # http.client.HTTPConnection.debuglevel = 0
 from .plugin_settings import *
 
+PLUGIN_VERSION = "1.0.5"
 TEMPLATE_HTML = """
 <html><body>
 <h3>Click image to open Explain PostgreSQL plan visualizer</h3>
@@ -38,6 +39,7 @@ def send_post_request(url, data, parse=False):
 	data = json.dumps(data).encode('utf-8')
 	headers = {
 		"Content-Type": "application/json; charset=utf-8",
+		"User-Agent": "Sublime/" + sublime.version() + " " + PLUGIN_VERSION,
 		"Method": "POST"
 	}
 	try:

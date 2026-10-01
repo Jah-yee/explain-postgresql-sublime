@@ -7,6 +7,7 @@ except Exception as e:
 	print(e)
 
 from ..utils import *
+from ..utils.utils import RequestError
 
 EXPLAIN_API="/explain"
 MSG_GETTING_PLAN="Getting plan..."
@@ -30,15 +31,26 @@ class EpExplainAnalyzeCommand(sublime_plugin.TextCommand):
 			data = {"query": text, "plan": result}
 			api_url = get_plugin_settings("api_url")
 			explain_api_url = api_url + EXPLAIN_API
-			url = send_post_request(explain_api_url, data)
+			try:
+				url = send_post_request(explain_api_url, data)
+			except RequestError as e:
+				sublime.error_message('Could not reach the explain API: ' + str(e))
+				return
 			plan_url = api_url + url
 			show_link = get_plugin_settings("show_link")
 			if (show_link in ["popup_diagram", 'newtab']):
-				html = get_html(plan_url)
+				try:
+					html = get_html(plan_url)
+				except RequestError as e:
+					sublime.error_message('Could not retrieve the plan HTML: ' + str(e))
+					return
 				parser.feed(html.decode("utf-8"))
 				parser.close()
-				bimg = get_html(parser.data)
-				if (bimg == None): return
+				try:
+					bimg = get_html(parser.data)
+				except RequestError as e:
+					sublime.error_message('Could not retrieve the diagram image: ' + str(e))
+					return
 				b64img = encode_img(bimg)
 				img_html = get_img_html(plan_url, b64img)
 				if (show_link == 'newtab'):

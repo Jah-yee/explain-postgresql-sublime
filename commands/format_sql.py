@@ -2,6 +2,7 @@ import sublime
 import sublime_plugin
 
 from ..utils import *
+from ..utils.utils import RequestError
 
 BEATIFIER_API="/beautifier-api"
 
@@ -19,7 +20,11 @@ class EpFormatSqlCommand(sublime_plugin.TextCommand):
 			text = v.substr(selection)
 		data = {"query_src": text}
 		url = get_plugin_settings("api_url") + BEATIFIER_API
-		res = send_post_request(url, data, True)
+		try:
+			res = send_post_request(url, data, True)
+		except RequestError as e:
+			sublime.error_message('Could not reach the beautifier API: ' + str(e))
+			return
 		if res['btf_query_text'] == res['btf_query']:
 			show_popup(v, res['btf_query_text'])
 		else:

@@ -35,6 +35,10 @@ def check_is_visible(view):
 	# else:
 	# 	return False
 
+class RequestError(Exception):
+    pass
+
+
 def send_post_request(url, data, parse=False):
 	data = json.dumps(data).encode('utf-8')
 	headers = {
@@ -53,7 +57,7 @@ def send_post_request(url, data, parse=False):
 			else:
 				return response_data
 	except Exception as e:
-		print(e)
+		raise RequestError(str(e))
 
 def show_popup(view, content):
 	# view.show_popup(content, flags=sublime.HIDE_ON_MOUSE_MOVE_AWAY, max_width=600, max_height=600)
@@ -72,7 +76,7 @@ def get_html(url):
 		with urllib.request.urlopen(req, timeout=30) as response:
 			return response.read()
 	except Exception as e:
-		print(e)
+		raise RequestError(str(e))
 
 def encode_img(img):
 	return base64.b64encode(img).decode("utf-8")

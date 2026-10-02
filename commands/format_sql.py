@@ -25,6 +25,9 @@ class EpFormatSqlCommand(sublime_plugin.TextCommand):
 		except RequestError as e:
 			sublime.error_message('Could not reach the beautifier API: ' + str(e))
 			return
+		if not isinstance(res, dict) or 'btf_query_text' not in res or 'btf_query' not in res:
+			sublime.error_message('Invalid response from beautifier API')
+			return
 		if res['btf_query_text'] == res['btf_query']:
 			show_popup(v, res['btf_query_text'])
 		else:

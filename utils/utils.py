@@ -1,6 +1,7 @@
 import sublime
 import json
 import urllib.request
+import urllib.error
 import base64
 import http
 # http.client.HTTPConnection.debuglevel = 0
@@ -56,6 +57,9 @@ def send_post_request(url, data, parse=False):
 				return json.loads(response_data)
 			else:
 				return response_data
+	except urllib.error.HTTPError as e:
+		body = e.read().decode('utf-8', errors='replace') if e.fp else ''
+		raise RequestError(f"{e}: {body}" if body else str(e))
 	except Exception as e:
 		raise RequestError(str(e))
 
@@ -75,6 +79,9 @@ def get_html(url):
 		req = urllib.request.Request(url, method='GET')
 		with urllib.request.urlopen(req, timeout=30) as response:
 			return response.read()
+	except urllib.error.HTTPError as e:
+		body = e.read().decode('utf-8', errors='replace') if e.fp else ''
+		raise RequestError(f"{e}: {body}" if body else str(e))
 	except Exception as e:
 		raise RequestError(str(e))
 
